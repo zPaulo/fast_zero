@@ -1,19 +1,16 @@
-from datetime import datetime
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import declarative_base
 
-from sqlalchemy import func
-from sqlalchemy.orm import Mapped, mapped_column, registry
-
-table_registry = registry()
+Base = declarative_base()
 
 
-@table_registry.mapped_as_dataclass
-class User:
+class User(Base):
     __tablename__ = 'users'
 
-    id: Mapped[int] = mapped_column(init=False, primary_key=True)
-    username: Mapped[str] = mapped_column(unique=True)
-    password: Mapped[str]
-    email: Mapped[str] = mapped_column(unique=True)
-    created_at: Mapped[datetime] = mapped_column(
-        init=False, server_default=func.now()
-    )
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True)
+    password = Column(String)
+
+    def __repr__(self):
+        return f"User(id={self.id}, username={self.username}, email={self.email})"

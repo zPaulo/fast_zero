@@ -29,6 +29,17 @@ def test_create_user(client):
 
 
 def test_read_users(client):
+    # Primeiro, cria um usuário
+    client.post(
+        '/users/',
+        json={
+            'username': 'testusername',
+            'email': 'test@email.com',
+            'password': 'testsenha',
+        },
+    )
+
+    # Em seguida, faz uma solicitação para obter todos os usuários
     response = client.get('/users/')
 
     assert response.status_code == HTTPStatus.OK
@@ -36,24 +47,46 @@ def test_read_users(client):
         'users': [
             {
                 'username': 'testusername',
-                'email': 'test@email.com',
                 'id': 1,
+                'email': 'test@email.com',
             }
         ]
     }
 
 
+
 def test_update_user(client):
-    response = client.put(
+    # Primeiro, cria um usuário
+    create_response = client.post(
+        '/users/',
+        json={
+            'username': 'testusername',
+            'email': 'test@email.com',
+            'password': 'testsenha',
+        },
+    )
+
+    # Verifica se o usuário foi criado corretamente
+    assert create_response.status_code == HTTPStatus.CREATED
+    assert create_response.json() == {
+        'username': 'testusername',
+        'email': 'test@email.com',
+        'id': 1,
+    }
+
+    # Agora, atualiza o usuário criado
+    update_response = client.put(
         '/users/1',
         json={
             'username': 'testusername2',
             'email': 'aaaaaaaa@email.com',
             'password': '123',
-            'id': 1,
         },
     )
-    assert response.json() == {
+
+    # Verifica se o usuário foi atualizado corretamente
+    assert update_response.status_code == HTTPStatus.OK
+    assert update_response.json() == {
         'username': 'testusername2',
         'email': 'aaaaaaaa@email.com',
         'id': 1,
@@ -61,6 +94,20 @@ def test_update_user(client):
 
 
 def test_delete_user(client):
+    # Primeiro, cria um usuário
+    client.post(
+        '/users/',
+        json={
+            'username': 'testusername',
+            'email': 'test@email.com',
+            'password': 'testsenha',
+        },
+    )
+
+    # Agora, deleta o usuário criado
     response = client.delete('/users/1')
 
+    # Verifica se o usuário foi deletado corretamente
+    assert response.status_code == HTTPStatus.OK
     assert response.json() == {'message': 'User deleted'}
+
